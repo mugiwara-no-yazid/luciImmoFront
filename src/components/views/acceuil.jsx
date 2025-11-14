@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { BaseUrl } from '../../globalvar'
 
-export default function Acceuil ({pageContent,setFormulaire, setId_bien,btnBiens,btnregister}){
+export default function Acceuil ({pageContent,setFormulaire,btnBiens,btnregister,btnAcceuil}){
     let [chiffre,setChiffre] = useState({})
     useEffect((()=>
     {axios.get(`${BaseUrl}/api/statistique`)
@@ -17,17 +17,18 @@ export default function Acceuil ({pageContent,setFormulaire, setId_bien,btnBiens
             else{
                 setChiffre({message:"Une erreur est survenu reesayée dans quelques instant"})
             }
-        }) .catch(e=>{setChiffre({message:"Une erreur est survenu reesayée dans quelques instant"})})
+        }) .catch(()=>{setChiffre({message:"Une erreur est survenu reesayée dans quelques instant"})})
     }
     ),[])
+
     return <div className="d-flex flex-column min-vh-100">
         <main className="flex-grow-1">
             <FirstSection/>
             <PresentationSection/>
             {chiffre.message && <div style={{height:"25vh",display:"flex",alignItems:"center",justifyContent:"center"}}><h2>{chiffre.message}</h2></div>}
             {!chiffre.message && <StatistiqueSection chiffre={chiffre}/>}
-            {!chiffre.message && <BienPremium pageContent={pageContent} setFormulaire={setFormulaire} setId_bien={setId_bien}/>}
-            {localStorage.getItem("connecter") != "true" && <InvitationSection pageContent={pageContent} setFormulaire={setFormulaire} btnBiens={btnBiens}btnregister={btnregister} />}
+            {chiffre.maisonPremium && <BienPremium ImmoPremium={chiffre.maisonPremium} pageContent={pageContent}  btnAcceuil={btnAcceuil} btnBiens={btnBiens}/>}
+            {localStorage.getItem("connecter") != "true" && <InvitationSection pageContent={pageContent} setFormulaire={setFormulaire} btnAcceuil={btnAcceuil} btnBiens={btnBiens}btnregister={btnregister} />}
             
     </main>
     <FooterComponent/>
@@ -107,7 +108,7 @@ function StatistiqueSection({chiffre})
         
 }
 
-function BienPremium({pageContent,setFormulaire, setId_bien})
+function BienPremium({ImmoPremium,pageContent,btnBiens,btnAcceuil})
 {
     return <section className='mt-5 mb-5' style={{width:"100%"}}>
                 <div className="card-text d-flex flex-column align-items-center text-center gap-2">
@@ -118,44 +119,32 @@ function BienPremium({pageContent,setFormulaire, setId_bien})
                     </p>
                 </div>
                  <div className="d-flex flex-column align-items-center container mt-2" >
-                    <div className="row"  style={{width:"100vw",padding:"3vw"}}>     
-                            <Immo 
-                            id_bien={1} 
-                            imgPrincipal="hero-image.jpg" 
-                            titre="Appartement moderne centre-ville"
-                            description="Appartement, Cotonou. 2 Chambres 1 toillette 80 m²."
-                            prix ="200000/mois"
-                            pageContent = {pageContent}
-                            setFormulaire={setFormulaire}
-                            setId_bien={setId_bien}></Immo>
-
-                            <Immo 
-                            id_bien={1} 
-                            imgPrincipal="hero-image.jpg" 
-                            titre="Appartement moderne centre-ville"
-                            description="Appartement, Cotonou. 2 Chambres 1 toillette 80 m²."
-                            prix ="200000/mois"
-                            pageContent = {pageContent}
-                            setFormulaire={setFormulaire}
-                            setId_bien={setId_bien}></Immo>
-
-                            <Immo 
-                            id_bien={1} 
-                            imgPrincipal="hero-image.jpg" 
-                            titre="Appartement moderne centre-ville"
-                            description="Appartement, Cotonou. 2 Chambres 1 toillette 80 m²."
-                            prix ="200000/mois"
-                            pageContent = {pageContent}
-                            setFormulaire={setFormulaire}
-                            setId_bien={setId_bien}></Immo>
+                    <div className="listings">  
+                        {ImmoPremium.map((bien)=>{return <Immo 
+                             key={bien.id_bien}
+                            id_bien={bien.id_bien} 
+                            imgPrincipal={bien.imgPrincipal? bien.imgPrincipal :"hero-image.jpg"}
+                            type_bien= {bien.type_bien}
+                            ville={bien.ville}
+                            nb_pieces={bien.nb_pieces}
+                            surface ={bien.surface}
+                            description = {bien.description}
+                            prix ={bien.prix}
+                            note= {bien.note}
+                            ></Immo> })}  
+                            
                     </div>
                     <div className="mt-3">
-                        <button type="button" className="btn btn-lg btn-more">Voir Plus</button>
+                        <button type="button" className="btn btn-lg btn-more" onClick={()=>{
+                            pageContent('biens')
+                            btnAcceuil.current.className=""
+                            btnBiens.current.className="menuselected"
+                            }} >Voir Plus</button>
                     </div>
                 </div>
         </section>
 }
-function InvitationSection({pageContent,setFormulaire,btnregister,btnBiens})
+function InvitationSection({pageContent,setFormulaire,btnregister,btnBiens,btnAcceuil})
 {
     return <section className="final-cta-section py-5">
             <div className="container text-center">
@@ -167,7 +156,7 @@ function InvitationSection({pageContent,setFormulaire,btnregister,btnBiens})
                     className="btn btn-primary btn-outline-light btn-lg" 
                     pageContent={pageContent} page="auth" 
                     formulaire="register" setFormulaire={setFormulaire}
-                    listBtn={[btnregister]}
+                    listBtn={[btnregister,btnAcceuil]}
                 >
                     S’inscrire
                 </Button>
@@ -175,7 +164,7 @@ function InvitationSection({pageContent,setFormulaire,btnregister,btnBiens})
                 className="btn btn-outline-light btn-lg"
                 pageContent={pageContent} page="biens" 
                 formulaire="" setFormulaire={setFormulaire}
-                listBtn={[btnBiens]}
+                listBtn={[btnBiens,btnAcceuil]}
                 >
                     Explorer</Button>
                 </div>

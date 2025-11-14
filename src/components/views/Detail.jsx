@@ -2,12 +2,24 @@ import axios from "axios";
 import { BaseUrl, devise } from "../../globalvar";
 import { useRef, useState } from "react";
 import { useEffect } from "react";
+import {useParams } from "react-router-dom";
+import Header from "../header/header";
 
-function Detail ({id_bien})
+function Detail ({pageContent,
+setFormulaire,
+btnAcceuil,
+btnBiens,
+btnPaiements,
+btnlogin,
+btnregister,
+btnlogout,
+btnDashboard})
 {
+    const {id_bien} = useParams()
     const [bien,SetBien]= useState(null)
     const texte=useRef(null)
     const [message,setMessage]= useState("")
+    
    
     useEffect((()=>{
         axios.get(`${BaseUrl}/api/biens/${id_bien}`)
@@ -17,10 +29,10 @@ function Detail ({id_bien})
         }
     })
     .catch(e=>{
-        setMessage("Le serveur est indisponible pour le moment reesayer plus tard")
+        setMessage(e.response.data.message)
     })
 
-    }),[])
+    }),[id_bien])
     
 function handleSubmit(e)
 {
@@ -43,14 +55,17 @@ function handleSubmit(e)
             }
             else {setMessage("Nous n'avons pas pu enregisré votre commentaire resseayer dans quelque instant")}
         })
-        .catch(e=>{setMessage("Nous n'avons pas pu enregisré votre commentaire resseayer dans quelque instant")})
+        .catch(()=>{setMessage("Nous n'avons pas pu enregisré votre commentaire resseayer dans quelque instant")})
 }
 if(bien)
-{return <div className="card shadow rounded-3 overflow-hidden" style={{paddingTop:"2vh"}}>
+{return <>
+<Header pageContent={pageContent} setFormulaire={setFormulaire} 
+btnAcceuil={btnAcceuil} btnBiens={btnBiens} btnPaiements={btnPaiements} btnlogin={btnlogin} btnregister={btnregister} btnlogout={btnlogout} btnDashboard={btnDashboard}></Header>
+<div className="card shadow rounded-3 overflow-hidden" style={{paddingTop:"2vh"}}>
   <div id="estateCarousel" className="carousel slide position-relative" data-bs-ride="carousel">
     <div className="carousel-inner">
       <div className="carousel-item active">
-        <img src="hero-image.jpg" className="d-block w-75 h-75" style={{position:"relative",left:"13%"}} alt="Estate Image 1"/>
+        <img src="/image/hero-image.jpg" className="d-block w-75 h-75" style={{position:"relative",left:"13%"}} alt="Estate Image 1"/>
       </div>
     </div>    
   </div>
@@ -67,10 +82,15 @@ if(bien)
     {localStorage.getItem("connecter") != "true" && <div>Connectez vous pour pouvoir commenter</div>}
     
   </div>
-</div>}
-return <div style={{textAlign:"center",marginTop:"20vh"}}>
+</div>
+</>}
+return <>
+ <Header pageContent={pageContent} setFormulaire={setFormulaire} 
+btnAcceuil={btnAcceuil} btnBiens={btnBiens} btnPaiements={btnPaiements} btnlogin={btnlogin} btnregister={btnregister} btnlogout={btnlogout} btnDashboard={btnDashboard}></Header>
+<div style={{textAlign:"center",marginTop:"20vh"}}>
     <h2>{message}</h2>
-    </div>
+</div>
+</>
 
     
 }
@@ -94,7 +114,7 @@ function SectionCommentaire({commentaire})
             return <div>
                 <h6 className="fw-semibold">Commentaires</h6>
                 <div className="small text-muted">
-                {commentaire.map(com=><p><strong>{com.Utilisateur.nom} : </strong>{com.contenu}</p>)}
+                {commentaire.map(com=><p key={com.Utilisateur.nom}><strong>{com.Utilisateur.nom} : </strong>{com.contenu}</p>)}
                 </div>    
             </div>
         }

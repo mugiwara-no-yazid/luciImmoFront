@@ -68,6 +68,7 @@ function RegisterComponent({setMessage,setStyle})
         })
         .catch(e=>{
             setMessage(e.response.data)
+            setStyle("alert alert-danger")
         })
     }
      
